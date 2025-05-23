@@ -1,22 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Live Reload Example</title>
-  </head>
-  <body>
-    <h1>Hello from the frontend 👋</h1>
-    <p>This page will auto-reload on changes!</p>
+<input id="textInput" onchange="sendToServer(this.value)" placeholder="Type something" />
 
-    <script>
-      const ws = new WebSocket("ws://localhost:35729");
-      ws.onmessage = (msg) => {
-        if (msg.data === "reload") {
-          console.log("Reloading page...");
-          location.reload();
-        }
-      };
-      ws.onerror = (err) => console.error("WebSocket error:", err);
-    </script>
-  </body>
-</html>
+<script>
+  function sendToServer(value) {
+    fetch("http://localhost:3000/write", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileName: "output/output.txt",
+        text: value,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log("✅ Server response:", data))
+      .catch((err) => console.error("❌ Error sending input:", err));
+  }
+
+  const ws = new WebSocket("ws://localhost:35729");
+  ws.onmessage = (msg) => {
+    if (msg.data === "reload") {
+      console.log("Reloading page...");
+      location.reload();
+    }
+  };
+  ws.onerror = (err) => console.error("WebSocket error:", err);
+</script>
